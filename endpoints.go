@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/go-kit/kit/endpoint"
 	"log"
 	"net/http"
@@ -27,23 +28,24 @@ func makeGetLocationEndpoint(svc svc.Svc) endpoint.Endpoint {
 		if !ok {
 			return nil, errors.New("invalid request")
 		}
+		log.Print(req)
 		l, err := svc.GetLocation(req.X, req.Y, req.Z, req.Vel)
 		if err != nil {
-			return locationResponse{Location: l}, err
+			return locationResponse{Location: fmt.Sprintf("%.2f", l)}, err
 		}
-		return locationResponse{Location: l}, nil
+		return locationResponse{Location: fmt.Sprintf("%.2f", l)}, nil
 	}
 }
 
 type locationRequest struct {
-	X   float64 `json:"x,omitempty" `
-	Y   float64 `json:"y,omitempty"`
-	Z   float64 `json:"z,omitempty"`
+	X   float64 `json:"x" `
+	Y   float64 `json:"y"`
+	Z   float64 `json:"z"`
 	Vel float64 `json:"vel"`
 }
 
 type locationResponse struct {
-	Location float64 `json:"loc"`
+	Location string `json:"loc"`
 }
 
 func DecodeLocationRequest(_ context.Context, r *http.Request) (interface{}, error) {
